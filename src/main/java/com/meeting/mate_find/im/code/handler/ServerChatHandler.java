@@ -1,4 +1,4 @@
-package com.meeting.mate_find.im.code;
+package com.meeting.mate_find.im.code.handler;
 
 import com.meeting.mate_find.im.vo.*;
 import io.netty.channel.Channel;
@@ -9,7 +9,7 @@ import io.netty.util.AttributeKey;
 
 import java.util.HashMap;
 import java.util.Map;
-
+@Deprecated
 public class ServerChatHandler extends ChannelHandlerAdapter {
     //1.定义一个Map（key是用户ID，value是连接通道）
     private static Map<Integer, Channel> map = new HashMap<Integer, Channel>();

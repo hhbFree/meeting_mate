@@ -1,5 +1,8 @@
 package com.meeting.mate_find.im.code;
 
+import com.meeting.mate_find.im.code.handler.Server2ChatHandler;
+import com.meeting.mate_find.im.code.handler.ServerChatHandler;
+import com.meeting.mate_find.im.code.handler.ServerMsgHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -31,7 +34,8 @@ public class NettyTimeServer {
                             //2.自定义解码器
                             ch.pipeline().addLast(new MyDecoder());
                             //3.业务Handler
-                            ch.pipeline().addLast(new ServerChatHandler());
+                            ch.pipeline().addLast(Server2ChatHandler.getInstance());
+                            ch.pipeline().addLast(ServerMsgHandler.getInstance());
                             //4.自定义编码器
                             ch.pipeline().addLast(new MyEncoder());
                         }

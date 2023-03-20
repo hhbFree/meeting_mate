@@ -1,15 +1,29 @@
-package com.meeting.mate_find.im.code;
+package com.meeting.mate_find.im.code.handler;
 
 import com.meeting.mate_find.im.vo.*;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerAdapter;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.*;
 import io.netty.util.AttributeKey;
 
 import java.util.Scanner;
+@ChannelHandler.Sharable
+public class Client2ChatHandler extends SimpleChannelInboundHandler<LoginResBean> {
 
-public class ClientChatHandler extends ChannelHandlerAdapter {
+    //1.构造函数私有化，避免创建实体
+    private Client2ChatHandler(){}
+    //2.定义一个静态全局变量
+    public static Client2ChatHandler instance=null;
+    //3.获取实体方法
+    public static Client2ChatHandler getInstance(){
+        if(instance==null){
+            synchronized (Client2ChatHandler.class){
+                if(instance==null){
+                    instance=new Client2ChatHandler();
+                }
+            }
+        }
+        return instance;
+    }
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         //通道就绪时，发起登录请求
@@ -17,31 +31,17 @@ public class ClientChatHandler extends ChannelHandlerAdapter {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        //根据msg做类型判断，不同的业务做不同的处理
-        if (msg instanceof LoginResBean) {
-            //1.登录结果响应
-            LoginResBean res = (LoginResBean) msg;
-            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>登录响应：" + res.getMsg());
-            if (res.getStatus() == 0) {
-                //1.登录成功，则给通道绑定属性
-                ctx.channel().attr(AttributeKey.valueOf("userid")).set(res.getUserid());
-                //2.调用发送消息方法
-                sendMsg(ctx.channel());
-            } else {
+    protected void messageReceived(ChannelHandlerContext ctx, LoginResBean res) throws Exception {
+        //1.登录结果响应
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>登录响应：" + res.getMsg());
+        if (res.getStatus() == 0) {
+            //1.登录成功，则给通道绑定属性
+            ctx.channel().attr(AttributeKey.valueOf("userid")).set(res.getUserid());
+            //2.调用发送消息方法
+            sendMsg(ctx.channel());
+        } else {
             //1.登录失败，调用登录方法
-                login(ctx.channel());
-            }
-
-        } else if (msg instanceof MsgResBean) {
-            //1.发送消息结果响应
-            MsgResBean res = (MsgResBean) msg;
-            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>发送响应：" + res.getMsg());
-
-        } else if (msg instanceof MsgRecBean) {
-            //2.接受消息
-            MsgRecBean res = (MsgRecBean) msg;
-            System.out.println("fromuserid=" + res.getFromuserid() + ",msg=" + res.getMsg());
+            login(ctx.channel());
         }
     }
 
